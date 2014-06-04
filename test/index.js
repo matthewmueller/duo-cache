@@ -135,5 +135,5 @@ function stream(){
 }
 
 function *repos(){
-  return JSON.parse(yield cofs.readFile(__dirname + '/tmp/.duo', 'utf8'));
+  return JSON.parse(yield cofs.readFile(__dirname + '/tmp/.repos', 'utf8'));
 }

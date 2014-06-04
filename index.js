@@ -192,7 +192,7 @@ Cache.prototype.lookup = function*(repo){
 
 Cache.prototype.persist = function*(){
   var str = JSON.stringify(yield this.repos());
-  var path = this.join('.duo');
+  var path = this.join('.repos');
   yield fs.writeFile(path, str);
   return this;
 };
