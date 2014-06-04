@@ -38,8 +38,16 @@ describe('duo-cache', function(){
   })
 
   describe('.add(repo, stream)', function(){
-    it('should be able to add branches', function*(){
-      yield cache.add('org:project@master', stream());
+    it('should throw when trying to add invalid tag', function*(){
+      var msg;
+
+      try {
+        yield cache.add('org:project@master', stream());      
+      } catch (e) {
+        msg = e.message;
+      }
+
+      assert('"org:project@master" invalid semver' == msg);
     })
 
     it('should add a repo', function*(){
@@ -47,14 +55,13 @@ describe('duo-cache', function(){
     })
 
     it('should persist .repos()', function*(){
-      yield cache.add('org:project@master', stream());
       yield cache.add('org:project@0.0.1', stream());
       yield cache.add('org:project@0.0.2', stream());
       yield cache.add('org:project-b@1.0.0', stream());
       var a = yield cache.repos();
       var b = yield repos();
       assert.deepEqual(a, b);
-      assert.deepEqual(a, { 'org:project': ['0.0.1', 'master', '0.0.2'], 'org:project-b': ['1.0.0'] });
+      assert.deepEqual(a, { 'org:project': ['0.0.1', '0.0.2'], 'org:project-b': ['1.0.0'] });
     })
   })
 
@@ -70,25 +77,12 @@ describe('duo-cache', function(){
       })
     })
 
-    describe('org:project@master', function(){
-      it('should sort semver and return the branch', function*(){
-        yield cache.add('org:project@1.0.0', stream());
-        yield cache.add('org:project@1.1.0', stream());
-        yield cache.add('org:project@1.2.0', stream());
-        yield cache.add('org:project@1.3.0', stream());
-        yield cache.add('org:project@master', stream());
-        var rev = yield cache.resolve('org:project@master');
-        assert('master' == rev);
-      })
-    })
-
     describe('org:project@*', function(){
       it('should return the latest tag', function*(){
         yield cache.add('org:project@1.0.0', stream());
         yield cache.add('org:project@1.1.0', stream());
         yield cache.add('org:project@1.2.0', stream());
         yield cache.add('org:project@1.3.0', stream());
-        yield cache.add('org:project@master', stream());
         var rev = yield cache.resolve('org:project@*');
         assert('1.3.0' == rev);
       })
@@ -128,10 +122,9 @@ describe('duo-cache', function(){
     })
 
     describe('org:project@master', function(){
-      it('should lookup branches correctly', function*(){
-        yield cache.add('org:project@master', stream());
-        var path = yield cache.lookup('org:project@master');
-        assert(path);
+      it('should return null on invalid range', function*(){
+        yield cache.add('org:project@0.0.1', stream());
+        assert(null == (yield cache.lookup('org:project@master')));
       })
     })
   })

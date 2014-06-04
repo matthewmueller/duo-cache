@@ -52,6 +52,7 @@ Cache.prototype.add = function*(repo, stream){
   var parts = repo.split('@');
   var name = parts.shift();
   var rev = parts.shift();
+  assert(semver.valid(rev), '"' + repo + '" invalid semver');
   var repos = yield this.repos();
   yield pipe(stream, write(dest));
   (repos[name] = repos[name] || []).push(rev);
@@ -100,7 +101,7 @@ Cache.prototype.destroy = function*(){
  *      // => 0.0.2
  * 
  * @param {String} repo
- * @return {Cache}
+ * @return {String}
  * @api public
  */
 
@@ -112,16 +113,11 @@ Cache.prototype.resolve = function*(repo){
   var revs = repos[name] || [];
   var ret;
 
-  revs = revs.sort(function(a, b){
-    try {
-      return semver.rcompare(a, b);
-    } catch (e) {
-      return semver.valid(a) ? -1 : 1;
-    }
-  });
+  if (!semver.validRange(rev)) return;
+  revs = revs.sort(semver.rcompare);
 
   for (var i = 0; i < revs.length; ++i) {
-    if (satisfies(revs[i], rev)) {
+    if (semver.satisfies(revs[i], rev)) {
       ret = revs[i];
       break;
     }
@@ -235,19 +231,4 @@ function pipe(a, b){
     a.on('end', done);
     a.pipe(b);
   };
-}
-
-/**
- * Check if `version` satisfies `range`.
- * 
- * @param {String} version
- * @param {String} range
- * @return {Boolean}
- * @api private
- */
-
-function satisfies(version, range){
-  return semver.validRange(range) && semver.valid(version)
-    ? semver.satisfies(version, range)
-    : version == range;
 }
