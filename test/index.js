@@ -38,16 +38,8 @@ describe('duo-cache', function(){
   })
 
   describe('.add(repo, stream)', function(){
-    it('should throw on invalid semver version', function*(){
-      var msg;
-
-      try {
-        yield cache.add('org:project@0.0.x', new Stream);
-      } catch (e) {
-        msg = e.message;
-      }
-
-      assert('"0.0.x" is not a valid semver version.' == msg);
+    it('should be able to add branches', function*(){
+      yield cache.add('org:project@master', stream());
     })
 
     it('should add a repo', function*(){
@@ -55,24 +47,49 @@ describe('duo-cache', function(){
     })
 
     it('should persist .repos()', function*(){
+      yield cache.add('org:project@master', stream());
       yield cache.add('org:project@0.0.1', stream());
       yield cache.add('org:project@0.0.2', stream());
       yield cache.add('org:project-b@1.0.0', stream());
       var a = yield cache.repos();
       var b = yield repos();
       assert.deepEqual(a, b);
-      assert.deepEqual(a, { 'org:project': ['0.0.1', '0.0.2'], 'org:project-b': ['1.0.0'] });
+      assert.deepEqual(a, { 'org:project': ['0.0.1', 'master', '0.0.2'], 'org:project-b': ['1.0.0'] });
     })
   })
 
   describe('.resolve(repo)', function(){
     describe('org:project@1.x', function(){
-      it('should return sort semver and return the latest', function*(){
+      it('should sort semver and return the latest', function*(){
         yield cache.add('org:project@1.0.0', stream());
         yield cache.add('org:project@1.1.0', stream());
         yield cache.add('org:project@1.2.0', stream());
         yield cache.add('org:project@1.3.0', stream());
         var rev = yield cache.resolve('org:project@1.x');
+        assert('1.3.0' == rev);
+      })
+    })
+
+    describe('org:project@master', function(){
+      it('should sort semver and return the branch', function*(){
+        yield cache.add('org:project@1.0.0', stream());
+        yield cache.add('org:project@1.1.0', stream());
+        yield cache.add('org:project@1.2.0', stream());
+        yield cache.add('org:project@1.3.0', stream());
+        yield cache.add('org:project@master', stream());
+        var rev = yield cache.resolve('org:project@master');
+        assert('master' == rev);
+      })
+    })
+
+    describe('org:project@*', function(){
+      it('should return the latest tag', function*(){
+        yield cache.add('org:project@1.0.0', stream());
+        yield cache.add('org:project@1.1.0', stream());
+        yield cache.add('org:project@1.2.0', stream());
+        yield cache.add('org:project@1.3.0', stream());
+        yield cache.add('org:project@master', stream());
+        var rev = yield cache.resolve('org:project@*');
         assert('1.3.0' == rev);
       })
     })

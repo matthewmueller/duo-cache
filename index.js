@@ -52,7 +52,6 @@ Cache.prototype.add = function*(repo, stream){
   var parts = repo.split('@');
   var name = parts.shift();
   var rev = parts.shift();
-  assert(semver.valid(rev), '"' + rev + '" is not a valid semver version.');
   var repos = yield this.repos();
   yield pipe(stream, write(dest));
   (repos[name] = repos[name] || []).push(rev);
@@ -113,10 +112,16 @@ Cache.prototype.resolve = function*(repo){
   var revs = repos[name] || [];
   var ret;
 
-  revs.sort(semver.rcompare);
+  revs = revs.sort(function(a, b){
+    try {
+      return semver.rcompare(a, b);
+    } catch (e) {
+      return semver.valid(a) ? -1 : 1;
+    }
+  });
 
   for (var i = 0; i < revs.length; ++i) {
-    if (semver.satisfies(revs[i], rev)) {
+    if (satisfies(revs[i], rev)) {
       ret = revs[i];
       break;
     }
@@ -230,4 +235,19 @@ function pipe(a, b){
     a.on('end', done);
     a.pipe(b);
   };
+}
+
+/**
+ * Check if `version` satisfies `range`.
+ * 
+ * @param {String} version
+ * @param {String} range
+ * @return {Boolean}
+ * @api private
+ */
+
+function satisfies(version, range){
+  return semver.validRange(range) && semver.valid(version)
+    ? semver.satisfies(version, range)
+    : version == range;
 }
