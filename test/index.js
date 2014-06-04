@@ -126,6 +126,14 @@ describe('duo-cache', function(){
         assert(null == path);
       })
     })
+
+    describe('org:project@master', function(){
+      it('should lookup branches correctly', function*(){
+        yield cache.add('org:project@master', stream());
+        var path = yield cache.lookup('org:project@master');
+        assert(path);
+      })
+    })
   })
 })
 
