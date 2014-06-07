@@ -6,17 +6,25 @@
 var debug = require('debug')('duo-cache');
 var write = require('fs').createWriteStream;
 var thunk = require('thunkify');
+var mkdir = require('mkdirp');
 var semver = require('semver');
 var assert = require('assert');
-var resolve = require('path').resolve;
-var join = require('path').join;
+var path = require('path');
+var resolve = path.resolve;
 var fs = require('co-fs');
+var join = path.join;
 
 /**
  * Expose `Cache`
  */
 
 module.exports = Cache;
+
+/**
+ * Thunkify file operations
+ */
+
+mkdir = thunk(mkdir);
 
 /**
  * Initialize `Cache`
@@ -32,6 +40,7 @@ function Cache(path){
   if (!(this instanceof Cache)) return new Cache(path);
   assert(path, 'path required');
   this.basepath = resolve(path);
+  this.mkdir = true;
 }
 
 /**
@@ -106,6 +115,11 @@ Cache.prototype.destroy = function*(){
  */
 
 Cache.prototype.resolve = function*(repo){
+  if (this.mkdir) {
+    yield mkdir(this.basepath);
+    this.mkdir = false;
+  }
+
   var repos = yield this.repos();
   var parts = repo.split('@');
   var name = parts.shift();

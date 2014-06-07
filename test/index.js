@@ -3,7 +3,6 @@ var Cache = require('..');
 var thunk = require('thunkify');
 var rmrf = require('rimraf');
 var assert = require('assert');
-var mkdir = require('fs').mkdirSync;
 var Stream = require('stream').Stream;
 var cofs = require('co-fs');
 var fs = require('fs');
@@ -13,7 +12,6 @@ describe('duo-cache', function(){
 
   beforeEach(function(){
     rmrf.sync(__dirname + '/tmp');
-    mkdir(__dirname + '/tmp');
     cache = Cache(__dirname + '/tmp');
   });
 
@@ -42,7 +40,7 @@ describe('duo-cache', function(){
       var msg;
 
       try {
-        yield cache.add('org:project@master', stream());      
+        yield cache.add('org:project@master', stream());
       } catch (e) {
         msg = e.message;
       }
