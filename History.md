@@ -1,4 +1,9 @@
 
+1.1.0 / 2014-06-10
+==================
+
+ * create the cache dir if it doesn't exist already
+
 1.0.1 / 2014-06-04
 ==================
 
