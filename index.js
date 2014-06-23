@@ -28,10 +28,10 @@ mkdir = thunk(mkdir);
 
 /**
  * Initialize `Cache`
- * 
+ *
  * TODO: add .hits(): Int .misses(): Int
  * TODO: add limit('1gb') etc..
- * 
+ *
  * @param {String} path
  * @api public
  */
@@ -45,9 +45,9 @@ function Cache(path){
 
 /**
  * Add `repo`, `path`.
- * 
+ *
  * TODO: allow branches.
- * 
+ *
  * @param {String} repo
  * @param {Stream} stream
  * @return {Function}
@@ -72,7 +72,7 @@ Cache.prototype.add = function*(repo, stream){
 
 /**
  * Remove `repo`.
- * 
+ *
  * @param {String} repo
  * @return {Cache}
  * @api public
@@ -89,7 +89,7 @@ Cache.prototype.remove = function*(repo){
 
 /**
  * Destroy cache.
- * 
+ *
  * @return {Cache}
  * @api public
  */
@@ -101,14 +101,14 @@ Cache.prototype.destroy = function*(){
 
 /**
  * Resolve `repo@version`.
- * 
+ *
  * Example:
- * 
+ *
  *      add('org:repo@0.0.1');
  *      add('org:repo@0.0.2');
  *      resolve('org:repo@*');
  *      // => 0.0.2
- * 
+ *
  * @param {String} repo
  * @return {String}
  * @api public
@@ -142,7 +142,7 @@ Cache.prototype.resolve = function*(repo){
 
 /**
  * Get path of `repo`
- * 
+ *
  * @param {String} repo
  * @return {String}
  * @api private
@@ -154,14 +154,14 @@ Cache.prototype.join = function(repo){
 
 /**
  * Get all cached repos.
- * 
+ *
  * Example:
- * 
+ *
  *      add('org:project@0.0.1')
  *      add('org:project@0.1.0');
  *      add('org:project@master');
  *      repos();
- * 
+ *
  *      {
  *        'org:project': [
  *          '0.0.1',
@@ -169,7 +169,7 @@ Cache.prototype.join = function(repo){
  *          'master'
  *        ]
  *      }
- * 
+ *
  * @return {Object}
  * @api private
  */
@@ -181,7 +181,7 @@ Cache.prototype.repos = function*(){
 
 /**
  * Lookup `repo@rev` path.
- * 
+ *
  * @param {String} repo
  * @return {String}
  * @api public
@@ -199,7 +199,7 @@ Cache.prototype.lookup = function*(repo){
 
 /**
  * Persist all repos.
- * 
+ *
  * @return {Cache}
  * @api public
  */
@@ -213,7 +213,7 @@ Cache.prototype.persist = function*(){
 
 /**
  * Read `path` as json.
- * 
+ *
  * @param {String} path
  * @return {Object}
  * @api private
@@ -229,9 +229,9 @@ function *json(path){
 
 /**
  * Pipe `a`, `b`.
- * 
+ *
  * TODO: o_O
- * 
+ *
  * @param {Stream} a
  * @param {Stream} b
  * @return {Function}
@@ -242,7 +242,7 @@ function pipe(a, b){
   return function(done){
     a.on('error', done);
     b.on('error', done);
-    a.on('end', done);
+    b.on('finish', done);
     a.pipe(b);
   };
 }
