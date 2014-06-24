@@ -4,6 +4,7 @@ var thunk = require('thunkify');
 var rmrf = require('rimraf');
 var assert = require('assert');
 var Stream = require('stream').Stream;
+var Readable = require('stream').Readable;
 var cofs = require('co-fs');
 var fs = require('fs');
 
@@ -45,11 +46,20 @@ describe('duo-cache', function(){
         msg = e.message;
       }
 
-      assert('"org:project@master" invalid semver' == msg);
+      assert.equal('"org:project@master" invalid semver', msg);
     })
 
     it('should add a repo', function*(){
       yield cache.add('org:project@0.0.1', stream());
+    })
+
+    it('should lock a repo', function*(){
+      yield cache.add('repo@1.0.0', wait('a', 40));
+      yield cache.add('repo@1.0.0', wait('b', 50));
+      yield cache.add('repo@1.0.0', wait('c', 100));
+      var path = yield cache.lookup('repo@1.0.0');
+      var str = yield cofs.readFile(path);
+      assert.equal('a', str.toString());
     })
 
     it('should persist .repos()', function*(){
@@ -134,4 +144,22 @@ function stream(){
 
 function *repos(){
   return JSON.parse(yield cofs.readFile(__dirname + '/tmp/.repos', 'utf8'));
+}
+
+function wait(str, ms){
+  var stream = new Readable;
+
+  stream._read = function(){
+    if (stream.r) {
+      setTimeout(function(){
+        stream.push(null);
+      }, ms);
+      return;
+    }
+
+    stream.r = true;
+    stream.push(str);
+  };
+
+  return stream;
 }

@@ -41,6 +41,7 @@ function Cache(path){
   assert(path, 'path required');
   this.basepath = resolve(path);
   this.mkdir = true;
+  this.adding = {};
 }
 
 /**
@@ -55,6 +56,7 @@ function Cache(path){
  */
 
 Cache.prototype.add = function*(repo, stream){
+  if (this.adding[repo]) return this;
   if (yield this.lookup(repo)) return this;
   debug('adding %s', repo);
   var dest = this.join(repo) + '.tar.gz';
@@ -62,10 +64,12 @@ Cache.prototype.add = function*(repo, stream){
   var name = parts.shift();
   var rev = parts.shift();
   assert(semver.valid(rev), '"' + repo + '" invalid semver');
+  this.adding[repo] = true;
   var repos = yield this.repos();
   yield pipe(stream, write(dest));
   (repos[name] = repos[name] || []).push(rev);
   yield this.persist();
+  delete this.adding[repo];
   debug('added %s to cache', repo);
   return this;
 };
