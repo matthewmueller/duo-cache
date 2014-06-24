@@ -1,7 +1,7 @@
 {
   "name": "duo-cache",
   "description": "duo's tmpfile cache",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "dependencies": {
     "co-fs": "^1.2.0",
     "debug": "^0.8.1",
