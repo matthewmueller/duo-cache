@@ -136,6 +136,26 @@ describe('duo-cache', function(){
       })
     })
   })
+
+  describe('.remove(repo)', function () {
+    it('should remove a repo from the cache', function *() {
+      yield cache.add('org:project@1.2.3', stream());
+      yield cache.remove('org:project');
+      assert(null == (yield cache.lookup('org:project@~1')));
+    })
+  })
+
+  describe('.destroy()', function () {
+    it('should remove all repos', function*(){
+      yield cache.add('foo:bar@0.0.0', stream());
+      yield cache.add('foo:bar@1.2.3', stream());
+      yield cache.add('org:project@0.0.0', stream());
+      yield cache.add('org:project@1.2.3', stream());
+      yield cache.destroy();
+      var repos = yield cache.repos();
+      assert.deepEqual(repos, {});
+    })
+  })
 })
 
 function stream(){

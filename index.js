@@ -7,6 +7,7 @@ var debug = require('debug')('duo-cache');
 var write = require('fs').createWriteStream;
 var thunk = require('thunkify');
 var mkdir = require('mkdirp');
+var rmrf = require('rimraf');
 var semver = require('semver');
 var assert = require('assert');
 var path = require('path');
@@ -25,6 +26,7 @@ module.exports = Cache;
  */
 
 mkdir = thunk(mkdir);
+rmrf = thunk(rmrf);
 
 /**
  * Initialize `Cache`
@@ -83,8 +85,9 @@ Cache.prototype.add = function*(repo, stream){
  */
 
 Cache.prototype.remove = function*(repo){
+  debug('rm -rf %s', repo);
   yield rmrf(this.join(repo));
-  var repos = yield this.repos()[name];
+  var repos = yield this.repos();
   delete repos[repo];
   yield this.persist();
   debug('removed %s', repo);
@@ -99,7 +102,10 @@ Cache.prototype.remove = function*(repo){
  */
 
 Cache.prototype.destroy = function*(){
-  yield rmrf(this.basepath);
+  var repos = yield this.repos();
+  for (var repo in repos) {
+    yield this.remove(repo);
+  }
   return this;
 };
 
