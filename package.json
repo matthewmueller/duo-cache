@@ -14,10 +14,10 @@
     "co-mocha": "0.0.4",
     "mocha": "^1.20.0"
   },
-  "readme": "\n## duo-cache\n\n  Duo's cache.\n\n### API\n\n#### Cache(path)\n\n  Initialize `Cache` with `path`.\n\n#### add(repo, stream)\n\n  Add `repo`, `stream`.\n\n    add('org:project@0.0.1', stream);\n    add('org:project@0.0.2', stream);\n\n#### has(repo)\n\n  Has `repo`.\n\n    has('org:project@*');\n    // => true\n    has('org:project@1.x');\n    // => false\n\n#### unpack(repo, path)\n\n  Unpack `repo` to `path`.\n\n#### clean()\n\n  Remove all repos.\n\n#### repos()\n\n  Get all cached repos.\n\n\n### License\n  \n  (MIT)\n",
-  "readmeFilename": "Readme.md",
-  "_id": "duo-cache@0.0.0",
-  "_shasum": "bcf3a120cf1ed621d1674b338a98e24623705b66",
-  "_from": "duo-cache@",
-  "_resolved": "https://registry.npmjs.org/duo-cache/-/duo-cache-0.0.0.tgz"
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/component/duo-cache.git"
+  },
+  "license": "MIT"
 }
