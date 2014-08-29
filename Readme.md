@@ -1,7 +1,7 @@
 
 ## duo-cache
 
-  Duo's cache.
+  Duo's cache. **Deprecated**
 
 ### API
 
